@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Cyber Njord"
+description = "A founder-led cybersecurity consulting website for IT, OT, and ICS environments, presenting Roland Plaka's advisory, assessment, and resilience services to industrial and critical-infrastructure teams."
+version = "1.0.0"
+id = "artifacts/cyber-njord"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19651
+
+[services.development]
+run = "pnpm --filter @workspace/cyber-njord run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/cyber-njord", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/cyber-njord/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19651"
+BASE_PATH = "/"
