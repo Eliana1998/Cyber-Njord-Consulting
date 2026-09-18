@@ -58,8 +58,17 @@ const services: Array<{
     outputs: ['System map', 'Prioritised attack paths', 'Decision brief'],
   },
   {
-    id: 'architecture',
+    id: 'penetration-testing',
     number: '02',
+    category: 'Assess',
+    icon: Crosshair,
+    title: 'Penetration testing for IT / OT boundaries',
+    copy: 'Rules-of-engagement-led testing for exposed services, remote access, identity paths, and selected industrial interfaces — designed to produce evidence without unsafe disruption.',
+    outputs: ['Test plan & guardrails', 'Validated findings', 'Remediation workshop'],
+  },
+  {
+    id: 'architecture',
+    number: '03',
     category: 'Build',
     icon: Network,
     title: 'Architecture & resilience',
@@ -68,7 +77,7 @@ const services: Array<{
   },
   {
     id: 'intelligence',
-    number: '03',
+    number: '04',
     category: 'Operate',
     icon: Database,
     title: 'Vulnerability & patch intelligence',
@@ -77,7 +86,7 @@ const services: Array<{
   },
   {
     id: 'readiness',
-    number: '04',
+    number: '05',
     category: 'Prepare',
     icon: FileCheck2,
     title: 'Compliance readiness',
@@ -86,12 +95,21 @@ const services: Array<{
   },
   {
     id: 'recovery',
-    number: '05',
+    number: '06',
     category: 'Operate',
     icon: RefreshCw,
     title: 'Incident & recovery support',
     copy: 'Calm, bounded support when a security event or recovery decision needs technical context, clear options, and a path back to operation.',
     outputs: ['Situation log', 'Recovery priorities', 'Lessons learned'],
+  },
+  {
+    id: 'attestation',
+    number: '07',
+    category: 'Prepare',
+    icon: ShieldCheck,
+    title: 'Security attestation & evidence',
+    copy: 'A structured, reviewable statement of security posture backed by scoped evidence, control ownership, exceptions, and a clear validity period.',
+    outputs: ['Scope & assertion', 'Evidence index', 'Management readout'],
   },
 ];
 
@@ -99,6 +117,41 @@ const approach = [
   ['01', 'Listen to the system', 'Start with the processes, dependencies, people, and constraints that keep the organisation running.'],
   ['02', 'Find the meaningful exposure', 'Combine technical evidence with consequence. Separate a noisy list from the paths that deserve attention now.'],
   ['03', 'Make the next move obvious', 'Leave your team with decisions they can defend, communicate, and execute without manufacturing urgency.'],
+];
+
+const sectorModels = [
+  {
+    code: '01 / FINANCE',
+    title: 'Financial institutions',
+    copy: 'Threat-led security work for banks, payment providers, insurers, investment firms, and other organisations where identity, availability, transaction integrity, and third-party access are business-critical.',
+    icon: BriefcaseBusiness,
+    outputs: ['Crown-jewel dependency model', 'Privileged access paths', 'Assurance evidence'],
+    accent: 'teal',
+  },
+  {
+    code: '02 / OT · IT · ICS',
+    title: 'Industrial and critical operations',
+    copy: 'Practical modelling for manufacturing, energy, utilities, transport, buildings, and other environments where cyber decisions can change a physical process or safety outcome.',
+    icon: Factory,
+    outputs: ['Zone and conduit model', 'Attack-path rehearsal', 'Recovery assumptions'],
+    accent: 'orange',
+  },
+  {
+    code: '03 / EDUCATION',
+    title: 'Universities, schools & academies',
+    copy: 'Context-aware support for open, distributed environments with research systems, student services, identity platforms, safeguarding responsibilities, and lean security teams.',
+    icon: GraduationCap,
+    outputs: ['Campus trust model', 'Identity and access review', 'Incident-ready playbook'],
+    accent: 'teal',
+  },
+  {
+    code: '04 / MODELLING',
+    title: 'System modelling',
+    copy: 'Make the environment visible before deciding what to test, protect, accept, or change. Model assets, dependencies, attack paths, consequence, and recovery in one working picture.',
+    icon: Boxes,
+    outputs: ['Asset dependency map', 'Scenario risk model', 'Decision visualisation'],
+    accent: 'orange',
+  },
 ];
 
 const bundles = [
@@ -124,6 +177,22 @@ const bundles = [
     copy: 'A repeatable reference-intelligence rhythm for teams that need to decide what to patch, monitor, accept, or verify.',
     use: 'Best for: lean security operations',
     includes: ['Asset-to-advisory mapping', 'Monthly triage clinic', 'Evidence-ready decision log'],
+    accent: 'teal',
+  },
+  {
+    code: 'PACKET / REDLINE',
+    title: 'Test the boundary safely',
+    copy: 'A bounded penetration-testing engagement for teams that need to validate whether a credible path can cross from exposure into impact.',
+    use: 'Best for: external surface and remote access',
+    includes: ['Rules of engagement', 'Evidence-led findings', 'Remediation retest'],
+    accent: 'orange',
+  },
+  {
+    code: 'PACKET / PROOF',
+    title: 'Make the claim defensible',
+    copy: 'An attestation-ready evidence pack that turns security assertions into a scoped, reviewable position for customers, boards, or assurance partners.',
+    use: 'Best for: assurance and customer diligence',
+    includes: ['Scope and assertion statement', 'Control evidence index', 'Exceptions and validity window'],
     accent: 'teal',
   },
 ];
@@ -215,7 +284,141 @@ const systemAssets = [
   { id: 'historian', label: 'Historian', zone: 'OT', detail: 'Process data and reporting', score: 71, x: 59, y: 38, color: 'orange' },
   { id: 'controller', label: 'Controller cell', zone: 'OT', detail: 'Logic and actuation', score: 79, x: 75, y: 67, color: 'red' },
   { id: 'recovery', label: 'Recovery vault', zone: 'Resilience', detail: 'Offline restore point', score: 31, x: 38, y: 73, color: 'lime' },
+  { id: 'safety', label: 'Safety interlock', zone: 'Safety', detail: 'SIS and process guardrails', score: 68, x: 78, y: 86, color: 'lime' },
+  { id: 'process', label: 'Physical process', zone: 'Physical', detail: 'Actuation and production outcome', score: 74, x: 91, y: 42, color: 'red' },
 ];
+
+const systemEdges = [
+  ['gateway', 'identity'],
+  ['gateway', 'historian'],
+  ['identity', 'controller'],
+  ['historian', 'controller'],
+  ['controller', 'safety'],
+  ['controller', 'process'],
+  ['recovery', 'controller'],
+] as const;
+
+const architectureLayers = [
+  {
+    id: 'governance',
+    number: 'LAYER 01',
+    label: 'Governance & external trust',
+    description: 'The people, obligations, and external relationships that define what the system must protect and who can influence it.',
+    tone: 'violet',
+    components: [
+      { id: 'board', label: 'Board & risk owners', detail: 'Consequence, appetite, and accountability' },
+      { id: 'regulators', label: 'Regulators & assurance', detail: 'Reporting, oversight, and evidence expectations' },
+      { id: 'suppliers', label: 'Suppliers & partners', detail: 'Third-party dependencies and access agreements' },
+      { id: 'identity-provider', label: 'Identity provider', detail: 'Federation, authentication, and trust claims', assetId: 'identity' },
+    ],
+  },
+  {
+    id: 'enterprise',
+    number: 'LAYER 02',
+    label: 'Enterprise IT & information',
+    description: 'The services that hold identity, business data, communication, and the operational context used by decision-makers.',
+    tone: 'teal',
+    components: [
+      { id: 'directory', label: 'Directory & SSO', detail: 'Users, roles, groups, and privileged identity', assetId: 'identity' },
+      { id: 'endpoints', label: 'Endpoints & admin tools', detail: 'Workstations, management clients, and support access' },
+      { id: 'business-apps', label: 'Business applications', detail: 'ERP, finance, HR, and customer-facing systems' },
+      { id: 'recovery-data', label: 'Backup & recovery data', detail: 'Restore points, retention, and recovery evidence', assetId: 'recovery' },
+    ],
+  },
+  {
+    id: 'boundary',
+    number: 'LAYER 03',
+    label: 'Boundary & integration',
+    description: 'The control points where trust zones meet: remote access, APIs, firewalls, brokers, and the paths that need to be attributable.',
+    tone: 'orange',
+    components: [
+      { id: 'firewall', label: 'Firewalls & segmentation', detail: 'Zones, conduits, filtering, and enforcement' },
+      { id: 'remote-access', label: 'Remote access broker', detail: 'Named, time-bound supplier and admin sessions', assetId: 'gateway' },
+      { id: 'jump-host', label: 'Jump host', detail: 'Monitored pivot point into protected zones' },
+      { id: 'integration-gateway', label: 'API & data gateway', detail: 'Protocol translation and controlled exchange', assetId: 'gateway' },
+    ],
+  },
+  {
+    id: 'control',
+    number: 'LAYER 04',
+    label: 'OT / ICS control',
+    description: 'The systems that observe, supervise, configure, and command the industrial process under production constraints.',
+    tone: 'teal',
+    components: [
+      { id: 'hmi-scada', label: 'HMI / SCADA', detail: 'Operator view, alarms, and supervisory control', assetId: 'historian' },
+      { id: 'historian', label: 'Historian & telemetry', detail: 'Process data, timing, and operational evidence', assetId: 'historian' },
+      { id: 'engineering', label: 'Engineering workstation', detail: 'Logic changes, commissioning, and maintenance' },
+      { id: 'controller-cell', label: 'PLC / controller cell', detail: 'Logic, setpoints, and actuation authority', assetId: 'controller' },
+    ],
+  },
+  {
+    id: 'physical',
+    number: 'LAYER 05',
+    label: 'Safety & physical process',
+    description: 'The protection functions and real-world outcomes that determine the consequence of a cyber event.',
+    tone: 'lime',
+    components: [
+      { id: 'sis', label: 'Safety instrumented system', detail: 'Independent trips, interlocks, and safe states', assetId: 'safety' },
+      { id: 'sensors', label: 'Sensors & actuators', detail: 'Signals and commands at the process edge' },
+      { id: 'physical-process', label: 'Physical process', detail: 'Production, quality, availability, and safety outcome', assetId: 'process' },
+      { id: 'safe-stop', label: 'Safe stop & recovery', detail: 'Controlled stop, restore, and restart criteria', assetId: 'recovery' },
+    ],
+  },
+] as const;
+
+const attackScenarios = {
+  vendor: {
+    label: 'Vendor remote access',
+    short: 'Third-party path',
+    description: 'A supplier session reaches the boundary and attempts to pivot into control and engineering paths.',
+    route: ['gateway', 'identity', 'controller', 'process'],
+    scores: { gateway: 72, identity: 64, historian: 46, controller: 86, recovery: 38, safety: 74, process: 82 },
+    impact: {
+      gateway: 'The broker is the first observable decision point for a third-party session.',
+      identity: 'A valid vendor identity can turn an access control into a trusted route.',
+      historian: 'Process data is useful for reconnaissance, but not the primary impact target.',
+      controller: 'Engineering access can change logic, modes, or setpoints if the boundary fails.',
+      recovery: 'A reachable recovery path would let an attacker extend disruption.',
+      safety: 'Safety functions may be isolated, but shared engineering paths still need proof.',
+      process: 'Changes to control logic can translate into unsafe or unavailable production.',
+    },
+    move: 'Use named, time-bound sessions through a monitored jump path; verify controller logic and close the vendor route after maintenance.',
+  },
+  ransomware: {
+    label: 'Ransomware spillover',
+    short: 'IT to OT disruption',
+    description: 'A compromise in enterprise IT attempts to cross the boundary and disrupt operations or recovery.',
+    route: ['identity', 'gateway', 'historian', 'controller', 'recovery'],
+    scores: { gateway: 68, identity: 79, historian: 73, controller: 71, recovery: 88, safety: 42, process: 67 },
+    impact: {
+      gateway: 'The boundary determines whether enterprise disruption becomes an operational event.',
+      identity: 'Central identity compromise can amplify a single endpoint incident across zones.',
+      historian: 'Historian availability affects visibility, reporting, and the operator’s picture of the process.',
+      controller: 'Controllers may not be directly encrypted, but loss of engineering support can stop a line.',
+      recovery: 'Online backups are a high-value target; recovery confidence depends on isolation and proof.',
+      safety: 'Safety should fail independently, but shared dependencies must be verified.',
+      process: 'The physical outcome is often loss of availability, not a dramatic cyber-physical exploit.',
+    },
+    move: 'Prove zone separation, protect recovery copies offline, and rehearse a controlled stop and restore with operations.',
+  },
+  unsafeCommand: {
+    label: 'Unsafe control command',
+    short: 'Integrity attack',
+    description: 'An actor reaches an operator or engineering surface and attempts to alter a process command.',
+    route: ['identity', 'gateway', 'historian', 'controller', 'safety', 'process'],
+    scores: { gateway: 55, identity: 61, historian: 67, controller: 91, recovery: 29, safety: 84, process: 93 },
+    impact: {
+      gateway: 'The path should make command origin, approval, and session context attributable.',
+      identity: 'Identity assurance matters because a valid account can look like normal operations.',
+      historian: 'Historian data can expose command timing and help prove what happened.',
+      controller: 'Controller integrity is the critical technical boundary for unsafe or unavailable behavior.',
+      recovery: 'Known-good logic and tested restore procedures shorten the path back to safe operation.',
+      safety: 'Independent interlocks must be validated as a separate protection layer, not assumed.',
+      process: 'The physical process bears the consequence: unsafe state, quality loss, or shutdown.',
+    },
+    move: 'Constrain command authority, verify engineering changes, and test independent safety behavior under a safe exercise plan.',
+  },
+} as const;
 
 const vulnerabilityRecords = [
   { id: 'REF-2417', asset: 'Edge gateway', ref: 'CVE-2024-21887', severity: 'Critical', status: 'Triage', source: 'NVD · vendor advisory', note: 'Validate exposure and vendor mitigation before patch window.' },
@@ -404,37 +607,128 @@ function AttackGraph() {
   );
 }
 
+function LayeredArchitecture() {
+  const [selectedLayerId, setSelectedLayerId] = useState('boundary');
+  const selectedLayer = architectureLayers.find((layer) => layer.id === selectedLayerId) ?? architectureLayers[2];
+  const [selectedComponentId, setSelectedComponentId] = useState<string>(selectedLayer.components[0].id);
+  const selectedComponent = selectedLayer.components.find((component) => component.id === selectedComponentId) ?? selectedLayer.components[0];
+  const mappedAssetId = 'assetId' in selectedComponent ? selectedComponent.assetId : undefined;
+  const mappedAsset = mappedAssetId ? systemAssets.find((asset) => asset.id === mappedAssetId) : undefined;
+  const riskBand = (value: number) => value >= 80 ? 'Critical' : value >= 65 ? 'High' : value >= 45 ? 'Moderate' : 'Guarded';
+
+  const chooseLayer = (layerId: string) => {
+    const layer = architectureLayers.find((item) => item.id === layerId) ?? architectureLayers[0];
+    setSelectedLayerId(layer.id);
+    setSelectedComponentId(layer.components[0].id);
+  };
+
+  return (
+    <div className="mt-7 border border-[#47717b] bg-[#142d3b] p-5 text-[#f6f0df] md:p-8" data-testid="layered-architecture">
+      <div className="flex flex-col justify-between gap-5 border-b border-[#47717b] pb-6 sm:flex-row sm:items-end">
+        <div>
+          <SectionLabel dark>Architecture assembly / layers</SectionLabel>
+          <h3 className="mt-2 font-display text-3xl tracking-[-.06em]">Open the system one layer at a time.</h3>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-[#9eb6ba]">Click a layer to expose its components. Then select a component to see its role and its mapped risk context in the wider system.</p>
+        </div>
+        <div className="flex items-center gap-2 font-mono-cnj text-[9px] uppercase tracking-[.1em] text-[#b4d36b]"><span className="h-1.5 w-1.5 rounded-full bg-[#b4d36b]" />Interactive assembly</div>
+      </div>
+      <div className="mt-7 grid gap-7 lg:grid-cols-[.9fr_1.1fr]">
+        <div className="space-y-2" role="tablist" aria-label="System architecture layers">
+          {architectureLayers.map((layer, index) => {
+            const active = selectedLayer.id === layer.id;
+            const toneColor = layer.tone === 'orange' ? '#f2a65a' : layer.tone === 'lime' ? '#b4d36b' : layer.tone === 'violet' ? '#b29cf4' : '#61d3c8';
+            return (
+              <button
+                key={layer.id}
+                onClick={() => chooseLayer(layer.id)}
+                className={`focus-ring flex w-full items-center gap-4 border p-4 text-left transition-colors ${active ? 'border-[#f2a65a] bg-[#173744]' : 'border-[#47717b] bg-[#102c38] hover:border-[#61d3c8]'}`}
+                role="tab"
+                aria-selected={active}
+                data-testid={`button-architecture-layer-${layer.id}`}
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center border font-mono-cnj text-[9px]" style={{ borderColor: toneColor, color: toneColor }}>{String(index + 1).padStart(2, '0')}</span>
+                <span className="min-w-0 flex-1"><span className="block font-mono-cnj text-[9px] uppercase tracking-[.12em]" style={{ color: toneColor }}>{layer.number}</span><span className="mt-1 block font-display text-base font-semibold">{layer.label}</span></span>
+                <span className="font-mono-cnj text-[9px] uppercase tracking-[.1em] text-[#72979e]">{layer.components.length} parts</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="border border-[#47717b] bg-[#173744] p-5 md:p-6" role="tabpanel">
+          <div className="flex items-start justify-between gap-4"><div><p className="eyebrow text-[#f2a65a]">{selectedLayer.number}</p><h4 className="mt-2 font-display text-2xl tracking-[-.05em]">{selectedLayer.label}</h4></div><Layers3 className="h-6 w-6 text-[#61d3c8]" /></div>
+          <p className="mt-4 text-sm leading-7 text-[#c8d7d8]">{selectedLayer.description}</p>
+          <div className="mt-6 grid gap-2 sm:grid-cols-2">{selectedLayer.components.map((component) => <button key={component.id} onClick={() => setSelectedComponentId(component.id)} className={`focus-ring border p-3 text-left transition-colors ${selectedComponent.id === component.id ? 'border-[#f2a65a] bg-[#f2a65a] text-[#142d3b]' : 'border-[#47717b] bg-[#142d3b] hover:border-[#61d3c8]'}`} data-testid={`button-architecture-component-${component.id}`}><span className="block font-display text-sm font-semibold">{component.label}</span><span className={`mt-1 block text-xs leading-5 ${selectedComponent.id === component.id ? 'text-[#5f4640]' : 'text-[#9eb6ba]'}`}>{component.detail}</span></button>)}</div>
+          <div className="mt-6 border-t border-[#47717b] pt-5">
+            <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="eyebrow text-[#61d3c8]">Selected component</p><p className="mt-2 font-display text-xl">{selectedComponent.label}</p></div>{mappedAsset ? <div className="text-right"><p className="eyebrow text-[#9eb6ba]">Mapped risk prompt</p><p className="mt-2 font-display text-2xl text-[#f2a65a]">{mappedAsset.score}<small className="ml-1 font-mono-cnj text-[9px] text-[#9eb6ba]">/100 · {riskBand(mappedAsset.score)}</small></p></div> : <span className="font-mono-cnj text-[9px] uppercase tracking-[.1em] text-[#72979e]">No direct asset score</span>}</div>
+            <p className="mt-4 text-xs leading-6 text-[#9eb6ba]">{mappedAsset ? `${mappedAsset.detail}. Use the system model below to test this component against different attack scenarios and risk lenses.` : 'This is an architectural context component. Confirm its owner, dependency, trust assumptions, and evidence before assigning a risk score.'}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SystemModel() {
   const [selected, setSelected] = useState('controller');
   const [lens, setLens] = useState('consequence');
-  const asset = systemAssets.find((item) => item.id === selected) ?? systemAssets[3];
+  const [scenario, setScenario] = useState<keyof typeof attackScenarios>('vendor');
+  const attack = attackScenarios[scenario];
+  const asset = systemAssets.find((item) => item.id === selected);
   const lensLabel = lens === 'consequence' ? 'Consequence' : lens === 'reachability' ? 'Reachability' : 'Recovery confidence';
-  const score = lens === 'consequence' ? asset.score : lens === 'reachability' ? Math.max(24, asset.score - 11) : Math.max(18, asset.score - 24);
+  const scoreFor = (item: typeof systemAssets[number]) => {
+    const base = attack.scores[item.id as keyof typeof attack.scores] ?? item.score;
+    if (lens === 'reachability') return Math.max(18, base - (item.zone === 'Physical' ? 8 : 4));
+    if (lens === 'recovery') return Math.max(14, base - (item.id === 'recovery' ? 22 : 13));
+    return base;
+  };
+  const scores = systemAssets.map(scoreFor);
+  const systemScore = Math.round(scores.reduce((total, value) => total + value, 0) / scores.length);
+  const selectedScore = asset ? scoreFor(asset) : systemScore;
+  const riskBand = (value: number) => value >= 80 ? 'Critical' : value >= 65 ? 'High' : value >= 45 ? 'Moderate' : 'Guarded';
+  const activeRoute = attack.route as readonly string[];
   return (
     <div className="border border-[#47717b] bg-[#142d3b] p-5 text-[#f6f0df] md:p-8">
       <div className="flex flex-col justify-between gap-5 border-b border-[#47717b] pb-6 sm:flex-row sm:items-end">
-        <div><SectionLabel dark>System model / 05</SectionLabel><h3 className="mt-2 font-display text-3xl tracking-[-.06em]">A risk view you can rotate.</h3><p className="mt-3 max-w-xl text-sm leading-7 text-[#9eb6ba]">Select an asset, then change the lens. The score is illustrative — a prompt for evidence and decisions, never a live rating.</p></div>
-        <label className="relative block min-w-[190px]"><span className="eyebrow text-[#61d3c8]">Risk lens</span><select value={lens} onChange={(event) => setLens(event.target.value)} className="focus-ring mt-2 w-full appearance-none border border-[#47717b] bg-[#173744] px-3 py-2.5 pr-9 font-mono-cnj text-[10px] uppercase tracking-[.1em] text-[#f6f0df]" data-testid="select-risk-lens"><option value="consequence">Consequence</option><option value="reachability">Reachability</option><option value="recovery">Recovery confidence</option></select><ChevronDown className="pointer-events-none absolute right-3 bottom-3 h-4 w-4 text-[#61d3c8]" /></label>
+        <div><SectionLabel dark>System model / 05</SectionLabel><h3 className="mt-2 font-display text-3xl tracking-[-.06em]">A cyber-physical system you can interrogate.</h3><p className="mt-3 max-w-xl text-sm leading-7 text-[#9eb6ba]">Choose an attack scenario, click any component, and compare its exposure with the risk carried by the system as a whole. Scores are illustrative prompts for evidence and decisions.</p></div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="relative block min-w-[190px]"><span className="eyebrow text-[#61d3c8]">Attack scenario</span><select value={scenario} onChange={(event) => setScenario(event.target.value as keyof typeof attackScenarios)} className="focus-ring mt-2 w-full appearance-none border border-[#47717b] bg-[#173744] px-3 py-2.5 pr-9 font-mono-cnj text-[10px] uppercase tracking-[.1em] text-[#f6f0df]" data-testid="select-attack-scenario"><option value="vendor">Vendor remote access</option><option value="ransomware">Ransomware spillover</option><option value="unsafeCommand">Unsafe control command</option></select><ChevronDown className="pointer-events-none absolute right-3 bottom-3 h-4 w-4 text-[#61d3c8]" /></label>
+          <label className="relative block min-w-[190px]"><span className="eyebrow text-[#61d3c8]">Risk lens</span><select value={lens} onChange={(event) => setLens(event.target.value)} className="focus-ring mt-2 w-full appearance-none border border-[#47717b] bg-[#173744] px-3 py-2.5 pr-9 font-mono-cnj text-[10px] uppercase tracking-[.1em] text-[#f6f0df]" data-testid="select-risk-lens"><option value="consequence">Consequence</option><option value="reachability">Reachability</option><option value="recovery">Recovery confidence</option></select><ChevronDown className="pointer-events-none absolute right-3 bottom-3 h-4 w-4 text-[#61d3c8]" /></label>
+        </div>
+      </div>
+      <div className="mt-5 grid gap-4 border-b border-[#47717b] pb-5 md:grid-cols-[1fr_auto] md:items-center">
+        <div><p className="eyebrow text-[#f2a65a]">{attack.short} / {attack.label}</p><p className="mt-2 max-w-3xl text-sm leading-7 text-[#c8d7d8]">{attack.description}</p></div>
+        <div className="flex items-center gap-4 border border-[#47717b] bg-[#173744] px-4 py-3"><span className="eyebrow text-[#9eb6ba]">System risk</span><span className="font-display text-3xl text-[#f2a65a]">{systemScore}<small className="ml-1 font-mono-cnj text-[10px] text-[#9eb6ba]">/100</small></span><span className="font-mono-cnj text-[9px] uppercase tracking-[.1em] text-[#b4d36b]">{riskBand(systemScore)}</span></div>
       </div>
       <div className="mt-7 grid gap-8 lg:grid-cols-[1.3fr_.7fr] lg:items-center">
         <div className="model-shell relative min-h-[405px] overflow-hidden border border-[#47717b] bg-[#102c38] p-5">
-          <div className="absolute left-5 top-5 font-mono-cnj text-[9px] uppercase tracking-[.13em] text-[#72979e]">model / layer 03 / assets {systemAssets.length}</div>
+          <div className="absolute left-5 top-5 font-mono-cnj text-[9px] uppercase tracking-[.13em] text-[#72979e]">model / layer 03 / assets {systemAssets.length} / route {activeRoute.length}</div>
           <div className="model-plane absolute left-[13%] top-[16%] h-[270px] w-[72%] border border-[#61d3c8]/40 bg-[#173744]/80">
             <div className="absolute inset-[13%] border border-[#47717b]"><span className="absolute -top-5 left-1 font-mono-cnj text-[8px] uppercase tracking-[.1em] text-[#72979e]">enterprise</span></div>
             <div className="absolute left-[48%] top-[12%] h-[75%] w-px bg-[#f2a65a]/40" />
             <div className="absolute bottom-[14%] left-[12%] right-[12%] h-px bg-[#b4d36b]/40" />
+            <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              {systemEdges.map(([from, to]) => {
+                const start = systemAssets.find((item) => item.id === from);
+                const end = systemAssets.find((item) => item.id === to);
+                if (!start || !end) return null;
+                const hot = activeRoute.includes(from) && activeRoute.includes(to);
+                return <line key={`${from}-${to}`} x1={start.x} y1={start.y} x2={end.x} y2={end.y} stroke={hot ? '#f2a65a' : '#47717b'} strokeWidth={hot ? '0.85' : '0.35'} strokeDasharray={hot ? '0' : '2 1'} />;
+              })}
+            </svg>
             {systemAssets.map((item) => {
               const isSelected = item.id === selected;
-              const displayScore = lens === 'consequence' ? item.score : lens === 'reachability' ? Math.max(24, item.score - 11) : Math.max(18, item.score - 24);
-              return <button key={item.id} onClick={() => setSelected(item.id)} data-selected={isSelected} data-testid={`button-model-asset-${item.id}`} className={`focus-ring asset-node absolute -translate-x-1/2 -translate-y-1/2 border px-2 py-1.5 text-left ${isSelected ? 'z-10 border-[#f2a65a] bg-[#f2a65a] text-[#142d3b]' : 'border-[#61d3c8]/70 bg-[#142d3b] text-[#f6f0df]'}`} style={{ left: `${item.x}%`, top: `${item.y}%` }}><span className="block whitespace-nowrap font-display text-[10px] font-semibold">{item.label}</span><span className={`block font-mono-cnj text-[8px] ${isSelected ? 'text-[#5f4640]' : 'text-[#9eb6ba]'}`}>{displayScore} / 100</span></button>;
+              const onRoute = activeRoute.includes(item.id);
+              const displayScore = scoreFor(item);
+              return <button key={item.id} onClick={() => setSelected(item.id)} data-selected={isSelected} data-attack-active={onRoute} data-testid={`button-model-asset-${item.id}`} className={`focus-ring asset-node absolute -translate-x-1/2 -translate-y-1/2 border px-2 py-1.5 text-left ${isSelected ? 'z-10 border-[#f2a65a] bg-[#f2a65a] text-[#142d3b]' : onRoute ? 'border-[#f2a65a]/80 bg-[#142d3b] text-[#f6f0df]' : 'border-[#61d3c8]/70 bg-[#142d3b] text-[#f6f0df]'}`} style={{ left: `${item.x}%`, top: `${item.y}%` }}><span className="block whitespace-nowrap font-display text-[10px] font-semibold">{item.label}</span><span className={`block font-mono-cnj text-[8px] ${isSelected ? 'text-[#5f4640]' : onRoute ? 'text-[#f2a65a]' : 'text-[#9eb6ba]'}`}>{displayScore} / 100</span></button>;
             })}
           </div>
-          <div className="absolute bottom-4 left-5 flex gap-4 font-mono-cnj text-[9px] uppercase tracking-[.1em] text-[#9eb6ba]"><span><i className="mr-1 inline-block h-2 w-2 bg-[#f2a65a]" />attention</span><span><i className="mr-1 inline-block h-2 w-2 bg-[#b4d36b]" />recovery</span></div>
+          <div className="absolute bottom-4 left-5 flex flex-wrap gap-4 font-mono-cnj text-[9px] uppercase tracking-[.1em] text-[#9eb6ba]"><span><i className="mr-1 inline-block h-2 w-2 bg-[#f2a65a]" />selected / route</span><span><i className="mr-1 inline-block h-2 w-2 bg-[#61d3c8]" />connected asset</span><span><i className="mr-1 inline-block h-2 w-2 bg-[#b4d36b]" />recovery</span></div>
         </div>
         <div className="border border-[#47717b] bg-[#173744] p-6">
-          <div className="flex items-start justify-between"><div><p className="eyebrow text-[#f2a65a]">{asset.zone}</p><h4 className="mt-3 font-display text-2xl tracking-[-.05em]">{asset.label}</h4></div><Gauge className="h-7 w-7 text-[#61d3c8]" /></div>
-          <p className="mt-2 text-sm text-[#9eb6ba]">{asset.detail}</p>
-          <div className="mt-8 border-t border-[#47717b] pt-5"><div className="flex items-end justify-between"><span className="eyebrow text-[#9eb6ba]">{lensLabel}</span><span className="font-display text-4xl text-[#f2a65a]">{score}<small className="ml-1 font-mono-cnj text-[10px] text-[#9eb6ba]">/100</small></span></div><div className="mt-3 h-1.5 bg-[#102c38]"><div className="h-full bg-[#f2a65a] transition-all" style={{ width: `${score}%` }} /></div></div>
+          <div className="flex items-start justify-between gap-4"><div><p className="eyebrow text-[#f2a65a]">{asset ? asset.zone : 'System overview'}</p><h4 className="mt-3 font-display text-2xl tracking-[-.05em]">{asset ? asset.label : 'Full system risk'}</h4></div><div className="flex items-center gap-2"><Boxes className="h-7 w-7 text-[#61d3c8]" /><button onClick={() => setSelected('system')} className={`focus-ring border px-2 py-1 font-mono-cnj text-[9px] uppercase tracking-[.08em] ${selected === 'system' ? 'border-[#f2a65a] text-[#f2a65a]' : 'border-[#47717b] text-[#9eb6ba]'}`} data-testid="button-model-system-overview">System</button></div></div>
+          <p className="mt-2 text-sm text-[#9eb6ba]">{asset ? asset.detail : 'Average exposure across physical, control, recovery, and boundary dependencies.'}</p>
+          <div className="mt-8 border-t border-[#47717b] pt-5"><div className="flex items-end justify-between"><span className="eyebrow text-[#9eb6ba]">{lensLabel} / {riskBand(selectedScore)}</span><span className="font-display text-4xl text-[#f2a65a]">{selectedScore}<small className="ml-1 font-mono-cnj text-[10px] text-[#9eb6ba]">/100</small></span></div><div className="mt-3 h-1.5 bg-[#102c38]"><div className="h-full bg-[#f2a65a] transition-all" style={{ width: `${selectedScore}%` }} /></div></div>
+          <div className="mt-6 border-t border-[#47717b] pt-5"><p className="eyebrow text-[#9eb6ba]">{asset ? 'Why this component matters' : 'System-wide reading'}</p><p className="mt-3 text-sm leading-7 text-[#c8d7d8]">{asset ? attack.impact[asset.id as keyof typeof attack.impact] : attack.description}</p></div>
+          <div className="mt-6 border-t border-[#47717b] pt-5"><p className="eyebrow text-[#1b7778]">Defensive move</p><p className="mt-3 text-sm leading-7 text-[#f6f0df]">{attack.move}</p></div>
           <div className="mt-6 flex items-center gap-2 font-mono-cnj text-[10px] uppercase tracking-[.1em] text-[#b4d36b]"><span className="status-pip h-2 w-2 rounded-full bg-[#b4d36b]" />Assessment status / evidence needed</div>
         </div>
       </div>
@@ -498,7 +792,7 @@ function Home() {
   };
 
   const closeMenu = () => setMenuOpen(false);
-  const navItems = [['Capabilities', '#capabilities'], ['System models', '#models'], ['Learning', '#learning'], ['Our team', '#team']];
+  const navItems = [['Sectors', '#sectors'], ['Capabilities', '#capabilities'], ['System models', '#models'], ['Learning', '#learning'], ['Our team', '#team']];
 
   return (
     <div className="cnj-page grain" id="top">
@@ -522,7 +816,7 @@ function Home() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .65 }} className="max-w-3xl">
               <div className="mb-8 flex items-center gap-3 font-mono-cnj text-[10px] uppercase tracking-[.18em] text-[#61d3c8]"><span className="h-2 w-2 animate-pulse rounded-full bg-[#f2a65a]" />Independent cybersecurity practice · Europe</div>
               <h1 className="font-display text-[clamp(3.5rem,8vw,7.7rem)] font-medium leading-[.88] tracking-[-.075em]">Protect what<br /><span className="text-[#61d3c8]">keeps moving.</span></h1>
-              <p className="mt-9 max-w-xl text-lg leading-8 text-[#c8d7d8] sm:text-xl">Cybersecurity for systems your organisation cannot afford to misunderstand — from enterprise IT to industrial operations, cloud access, and critical infrastructure.</p>
+              <p className="mt-9 max-w-xl text-lg leading-8 text-[#c8d7d8] sm:text-xl">Cybersecurity and system modelling for financial institutions, OT / IT / ICS operators, universities, schools, academies, and the critical infrastructure around them.</p>
               <div className="mt-10 flex flex-wrap gap-4"><ButtonLink href="#contact">Talk through your risk</ButtonLink><ButtonLink href="#capabilities" secondary>Explore the platform</ButtonLink></div>
               <div className="mt-14 grid max-w-xl grid-cols-3 gap-4 border-t border-[#47717b] pt-5 font-mono-cnj text-[9px] uppercase tracking-[.1em] text-[#9eb6ba]"><span><b className="block font-normal text-[#f2a65a]">01</b> context first</span><span><b className="block font-normal text-[#f2a65a]">02</b> evidence mapped</span><span><b className="block font-normal text-[#f2a65a]">03</b> decisions clear</span></div>
             </motion.div>
@@ -535,8 +829,10 @@ function Home() {
         </section>
 
         <section className="border-b border-[#cedbd9] bg-[#f2f0e8]">
-          <div className="mx-auto grid max-w-[1400px] gap-10 px-6 py-20 lg:grid-cols-[.4fr_1fr] lg:px-10 lg:py-28"><div><div className="line-accent mb-6" /><SectionLabel>The premise</SectionLabel></div><div><h2 className="font-display max-w-4xl text-[clamp(2.3rem,5vw,4.9rem)] font-medium leading-[.98] tracking-[-.065em] text-[#142d3b]">Security is only useful when it helps the operation <span className="text-[#1b7778]">stay in control.</span></h2><p className="mt-8 max-w-2xl text-base leading-8 text-[#50676b]">Cyber Njord is a consultancy, learning space, and reference-intelligence practice for teams working across enterprise IT, OT / ICS, cloud access, and the boundaries between them.</p></div></div>
+          <div className="mx-auto grid max-w-[1400px] gap-10 px-6 py-20 lg:grid-cols-[.4fr_1fr] lg:px-10 lg:py-28"><div><div className="line-accent mb-6" /><SectionLabel>The premise</SectionLabel></div><div><h2 className="font-display max-w-4xl text-[clamp(2.3rem,5vw,4.9rem)] font-medium leading-[.98] tracking-[-.065em] text-[#142d3b]">Security is only useful when it helps the operation <span className="text-[#1b7778]">stay in control.</span></h2><p className="mt-8 max-w-2xl text-base leading-8 text-[#50676b]">Cyber Njord is a consultancy, learning space, and reference-intelligence practice for financial institutions, industrial and critical operations, and education environments — using modelling to connect technical exposure with consequence.</p></div></div>
         </section>
+
+         <section id="sectors" className="bg-[#e7f0ed] px-6 py-24 lg:px-10 lg:py-32"><div className="mx-auto max-w-[1400px]"><div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end"><div><SectionLabel>Sector focus / working models</SectionLabel><h2 className="mt-5 max-w-3xl font-display text-[clamp(2.8rem,5vw,5rem)] font-medium leading-[.92] tracking-[-.07em] text-[#142d3b]">Start with the<br /><span className="text-[#1b7778]">system you run.</span></h2></div><p className="max-w-sm text-sm leading-7 text-[#50676b]">Different environments carry different consequences. The method stays evidence-led, but the model starts with how your organisation actually works.</p></div><div className="grid gap-4 md:grid-cols-2">{sectorModels.map((sector) => { const Icon = sector.icon; return <article key={sector.code} className={`border p-7 ${sector.accent === 'orange' ? 'border-[#f2a65a] bg-[#f2a65a]' : 'border-[#a8c8c2] bg-[#f2f0e8]'}`} data-testid={`card-sector-${sector.code.toLowerCase().replaceAll(' ', '-')}`}><div className="flex items-start justify-between"><span className={`font-mono-cnj text-[10px] uppercase tracking-[.15em] ${sector.accent === 'orange' ? 'text-[#5f4640]' : 'text-[#1b7778]'}`}>{sector.code}</span><Icon className={`h-7 w-7 stroke-[1.25] ${sector.accent === 'orange' ? 'text-[#142d3b]' : 'text-[#1b7778]'}`} /></div><h3 className="mt-14 font-display text-3xl leading-[.95] tracking-[-.06em] text-[#142d3b]">{sector.title}</h3><p className="mt-5 max-w-xl text-sm leading-7 text-[#50676b]">{sector.copy}</p><div className={`mt-7 border-t pt-5 ${sector.accent === 'orange' ? 'border-[#142d3b]/20' : 'border-[#c5d6d1]'}`}>{sector.outputs.map((output) => <div key={output} className="mb-2 flex items-center gap-2 font-mono-cnj text-[10px] uppercase tracking-[.08em] text-[#1b7778]"><Check className="h-3.5 w-3.5" />{output}</div>)}</div></article>; })}</div></div></section>
 
         <section id="capabilities" className="bg-[#f8f7f1] px-6 py-24 lg:px-10 lg:py-36">
           <div className="mx-auto max-w-[1400px]"><div className="mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end"><div><SectionLabel>01 / Service catalogue</SectionLabel><h2 className="mt-5 font-display max-w-2xl text-[clamp(2.7rem,5vw,5rem)] font-medium leading-[.95] tracking-[-.07em] text-[#142d3b]">Clear eyes.<br /><span className="text-[#1b7778]">Useful pressure.</span></h2></div><p className="max-w-sm text-sm leading-7 text-[#61777a]">Choose the mode of work that fits the decision in front of you. Every engagement leaves behind a usable artefact.</p></div>
@@ -549,7 +845,7 @@ function Home() {
 
         <section className="bg-[#f2f0e8] px-6 py-24 lg:px-10 lg:py-32"><div className="mx-auto max-w-[1400px]"><div className="mb-12 flex items-end justify-between gap-5"><div><SectionLabel>03 / Engagement packets</SectionLabel><h2 className="mt-5 font-display text-[clamp(2.7rem,5vw,4.8rem)] leading-[.95] tracking-[-.07em] text-[#142d3b]">A bounded start<br /><span className="text-[#1b7778]">with a clear finish.</span></h2></div><Boxes className="hidden h-12 w-12 text-[#f2a65a] sm:block" /></div><div className="grid gap-4 lg:grid-cols-3">{bundles.map((bundle) => <article key={bundle.code} className={`border p-7 ${bundle.accent === 'orange' ? 'border-[#f2a65a] bg-[#f2a65a]' : 'border-[#cedbd9] bg-[#f8f7f1]'}`} data-testid={`card-bundle-${bundle.code.toLowerCase().replaceAll(' ', '-')}`}><div className="flex items-center justify-between"><span className={`font-mono-cnj text-[10px] uppercase tracking-[.15em] ${bundle.accent === 'orange' ? 'text-[#5f4640]' : 'text-[#1b7778]'}`}>{bundle.code}</span><ArrowUpRight className={bundle.accent === 'orange' ? 'h-5 w-5 text-[#142d3b]' : 'h-5 w-5 text-[#f2a65a]'} /></div><h3 className="mt-16 font-display text-3xl leading-[.95] tracking-[-.06em] text-[#142d3b]">{bundle.title}</h3><p className="mt-5 text-sm leading-7 text-[#50676b]">{bundle.copy}</p><p className="mt-6 font-mono-cnj text-[10px] uppercase tracking-[.1em] text-[#1b7778]">{bundle.use}</p><ul className="mt-6 border-t border-current/15 pt-5">{bundle.includes.map((include) => <li key={include} className="mb-2 flex items-center gap-2 text-sm text-[#50676b]"><Check className="h-4 w-4 text-[#1b7778]" />{include}</li>)}</ul></article>)}</div></div></section>
 
-        <section id="models" className="bg-[#173744] px-6 py-24 lg:px-10 lg:py-32"><div className="mx-auto max-w-[1400px]"><div className="mb-12 grid gap-7 md:grid-cols-[.7fr_1fr] md:items-end"><div><SectionLabel dark>04 / Assessment instruments</SectionLabel><h2 className="mt-5 font-display text-[clamp(2.8rem,5vw,5rem)] leading-[.92] tracking-[-.07em] text-[#f6f0df]">Make the path<br /><span className="text-[#61d3c8]">visible.</span></h2></div><p className="max-w-xl text-sm leading-7 text-[#9eb6ba]">Interactive models are not theatre. They are compact ways to ask better questions: which asset matters, which path is plausible, and which defensive move changes the outcome?</p></div><AttackGraph /><div className="mt-7"><SystemModel /></div></div></section>
+        <section id="models" className="bg-[#173744] px-6 py-24 lg:px-10 lg:py-32"><div className="mx-auto max-w-[1400px]"><div className="mb-12 grid gap-7 md:grid-cols-[.7fr_1fr] md:items-end"><div><SectionLabel dark>04 / Assessment instruments</SectionLabel><h2 className="mt-5 font-display text-[clamp(2.8rem,5vw,5rem)] leading-[.92] tracking-[-.07em] text-[#f6f0df]">Make the path<br /><span className="text-[#61d3c8]">visible.</span></h2></div><p className="max-w-xl text-sm leading-7 text-[#9eb6ba]">Interactive models are not theatre. They are compact ways to ask better questions: which asset matters, which path is plausible, and which defensive move changes the outcome?</p></div><LayeredArchitecture /><div className="mt-7"><AttackGraph /></div><div className="mt-7"><SystemModel /></div></div></section>
 
         <section id="learning" className="bg-[#dfece8] px-6 py-24 lg:px-10 lg:py-32"><div className="mx-auto grid max-w-[1400px] gap-14 lg:grid-cols-[.42fr_1fr]"><div><SectionLabel>05 / Learning pathways</SectionLabel><h2 className="mt-5 font-display text-[clamp(2.8rem,5vw,5rem)] leading-[.92] tracking-[-.07em] text-[#142d3b]">Build the<br /><span className="text-[#1b7778]">competence.</span></h2><p className="mt-7 max-w-sm text-sm leading-7 text-[#50676b]">Short, applied learning for teams that need to understand the system behind the control. Preparation and evidence, not a promise of external certification.</p><div className="mt-9 flex items-center gap-3 font-mono-cnj text-[10px] uppercase tracking-[.15em] text-[#1b7778]"><GraduationCap className="h-4 w-4" /> learn / apply / evidence</div></div><div className="space-y-3"><article className="border border-[#a8c8c2] bg-[#f2f0e8] p-6 md:p-8"><div className="flex flex-col justify-between gap-5 sm:flex-row"><div><p className="eyebrow text-[#f08b3d]">Pathway / foundational</p><h3 className="mt-3 font-display text-2xl tracking-[-.05em] text-[#142d3b]">System thinking for IT / OT teams</h3></div><BookOpen className="h-7 w-7 text-[#1b7778]" /></div><p className="mt-5 max-w-2xl text-sm leading-7 text-[#50676b]">A practical sequence covering zones, trust boundaries, consequence, vulnerability triage, and how to explain technical risk to the people who own the process.</p><div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 border-t border-[#c5d6d1] pt-5 font-mono-cnj text-[10px] uppercase tracking-[.08em] text-[#1b7778]"><span>4 modules</span><span>Workshop format</span><span>Team evidence notes</span></div></article><article className="border border-[#a8c8c2] bg-[#173744] p-6 text-[#f6f0df] md:p-8"><div className="flex flex-col justify-between gap-5 sm:flex-row"><div><p className="eyebrow text-[#61d3c8]">Pathway / certification readiness</p><h3 className="mt-3 font-display text-2xl tracking-[-.05em]">Evidence packs for the exam room</h3></div><FileCheck2 className="h-7 w-7 text-[#f2a65a]" /></div><p className="mt-5 max-w-2xl text-sm leading-7 text-[#c8d7d8]">Preparation support for selected security and industrial-security certification pathways: map the syllabus to your experience, close evidence gaps, and rehearse the competency language.</p><div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 border-t border-[#47717b] pt-5 font-mono-cnj text-[10px] uppercase tracking-[.08em] text-[#61d3c8]"><span>Competency map</span><span>Evidence pack</span><span>No certification issued</span></div></article><article className="border border-[#a8c8c2] bg-[#f2f0e8] p-6 md:p-8"><div className="flex flex-col justify-between gap-5 sm:flex-row"><div><p className="eyebrow text-[#f08b3d]">Pathway / practitioner</p><h3 className="mt-3 font-display text-2xl tracking-[-.05em] text-[#142d3b]">Vulnerability intelligence in practice</h3></div><TerminalSquare className="h-7 w-7 text-[#1b7778]" /></div><p className="mt-5 max-w-2xl text-sm leading-7 text-[#50676b]">Build a repeatable route from NVD, CISA KEV, MITRE ATT&CK, and vendor advisories to asset owners, maintenance windows, compensating controls, and closure evidence.</p></article></div></div></section>
 
