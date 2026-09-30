@@ -98,9 +98,9 @@ const services: Array<{
     number: '06',
     category: 'Operate',
     icon: RefreshCw,
-    title: 'Incident & recovery support',
-    copy: 'Calm, bounded support when a security event or recovery decision needs technical context, clear options, and a path back to operation.',
-    outputs: ['Situation log', 'Recovery priorities', 'Lessons learned'],
+    title: 'Disaster recovery & operational resilience',
+    copy: 'Turn a cyber disruption into a controlled recovery decision: stabilise the situation, restore from known-good points, validate safety and integrity, and return to operation with evidence.',
+    outputs: ['Recovery strategy', 'Restore test', 'Return-to-operation plan'],
   },
   {
     id: 'attestation',
@@ -365,6 +365,69 @@ const architectureLayers = [
     ],
   },
 ] as const;
+
+const recoveryPhases = [
+  {
+    id: 'declare',
+    number: '01',
+    label: 'Detect & declare',
+    title: 'Create one trusted situation picture.',
+    copy: 'Confirm what is known, name the incident lead, protect decision logs, and distinguish service degradation from a safety-critical condition.',
+    evidence: ['Situation log', 'Decision owner', 'Initial scope'],
+    tone: 'teal',
+  },
+  {
+    id: 'contain',
+    number: '02',
+    label: 'Contain & stabilise',
+    title: 'Stop the spread without losing control.',
+    copy: 'Apply the least-disruptive isolation that protects people, operations, identities, and recovery copies while preserving the evidence needed to understand the event.',
+    evidence: ['Containment actions', 'Access freeze', 'Safety check'],
+    tone: 'orange',
+  },
+  {
+    id: 'restore',
+    number: '03',
+    label: 'Restore known-good',
+    title: 'Bring back the right thing, in the right order.',
+    copy: 'Use protected restore points and agreed dependencies. Restore identity, visibility, control, and business services in an order the process owner can defend.',
+    evidence: ['Restore point', 'Dependency order', 'Technical sign-off'],
+    tone: 'teal',
+  },
+  {
+    id: 'validate',
+    number: '04',
+    label: 'Validate safety & integrity',
+    title: 'Prove the system is safe to trust again.',
+    copy: 'Test commands, configuration, access, telemetry, interlocks, and business controls before declaring the service recovered.',
+    evidence: ['Validation script', 'Control checks', 'Owner acceptance'],
+    tone: 'lime',
+  },
+  {
+    id: 'resume',
+    number: '05',
+    label: 'Resume & learn',
+    title: 'Return to operation with a record.',
+    copy: 'Resume in measured steps, monitor for recurrence, capture lessons, and convert the recovery experience into better architecture and rehearsal.',
+    evidence: ['Return-to-operation plan', 'Monitoring window', 'Lessons learned'],
+    tone: 'violet',
+  },
+] as const;
+
+const recoveryScenarios = {
+  finance: {
+    label: 'Financial institution',
+    context: 'Prioritise transaction integrity, privileged access, customer communication, and regulatory evidence while protecting critical payment and settlement dependencies.',
+  },
+  industrial: {
+    label: 'OT / IT / ICS operator',
+    context: 'Prioritise safe state, process visibility, engineering access, recovery vault isolation, and a controlled restart with operations and safety owners.',
+  },
+  education: {
+    label: 'University / school / academy',
+    context: 'Prioritise identity, learning services, safeguarding, research and student data, and a staged return that works for a distributed community.',
+  },
+} as const;
 
 const attackScenarios = {
   vendor: {
@@ -667,6 +730,34 @@ function LayeredArchitecture() {
   );
 }
 
+function RecoveryRunbook() {
+  const [selectedPhaseId, setSelectedPhaseId] = useState('contain');
+  const [scenario, setScenario] = useState<keyof typeof recoveryScenarios>('industrial');
+  const selectedPhase = recoveryPhases.find((phase) => phase.id === selectedPhaseId) ?? recoveryPhases[1];
+  const scenarioContext = recoveryScenarios[scenario];
+
+  return (
+    <section id="recovery" className="bg-[#f2f0e8] px-6 py-24 lg:px-10 lg:py-32" data-testid="section-disaster-recovery">
+      <div className="mx-auto max-w-[1400px]">
+        <div className="grid gap-12 lg:grid-cols-[.42fr_1fr] lg:items-start">
+          <div>
+            <SectionLabel>05 / Disaster recovery</SectionLabel>
+            <h2 className="mt-5 font-display text-[clamp(2.8rem,5vw,5rem)] font-medium leading-[.92] tracking-[-.07em] text-[#142d3b]">Recover with<br /><span className="text-[#1b7778]">proof.</span></h2>
+            <p className="mt-7 max-w-sm text-sm leading-7 text-[#61777a]">A recovery plan is only useful when it explains who decides, what comes back first, how safety is checked, and what evidence supports the return to operation.</p>
+            <label className="relative mt-8 block max-w-sm"><span className="eyebrow text-[#61777a]">Apply the runbook to</span><select value={scenario} onChange={(event) => setScenario(event.target.value as keyof typeof recoveryScenarios)} className="focus-ring mt-3 w-full appearance-none border border-[#b9ceca] bg-[#f8f7f1] px-3 py-3 pr-9 font-mono-cnj text-[10px] uppercase tracking-[.1em] text-[#142d3b]" data-testid="select-recovery-scenario"><option value="finance">Financial institution</option><option value="industrial">OT / IT / ICS operator</option><option value="education">University / school / academy</option></select><ChevronDown className="pointer-events-none absolute right-3 bottom-3 h-4 w-4 text-[#1b7778]" /></label>
+          </div>
+          <div className="border border-[#c5d6d1] bg-[#e7f0ed] p-5 md:p-8">
+            <div className="flex flex-col justify-between gap-5 border-b border-[#b5ccc6] pb-6 sm:flex-row sm:items-start"><div><p className="eyebrow text-[#f08b3d]">Recovery context / {scenarioContext.label}</p><h3 className="mt-3 font-display text-2xl tracking-[-.05em] text-[#142d3b]">From disruption to a defensible restart.</h3></div><RefreshCw className="h-7 w-7 text-[#1b7778]" /></div>
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-[#50676b]">{scenarioContext.context}</p>
+            <div className="mt-7 grid gap-2 sm:grid-cols-5">{recoveryPhases.map((phase) => { const active = phase.id === selectedPhase.id; const toneColor = phase.tone === 'orange' ? '#f2a65a' : phase.tone === 'lime' ? '#7a9b39' : phase.tone === 'violet' ? '#7862ba' : '#1b7778'; return <button key={phase.id} onClick={() => setSelectedPhaseId(phase.id)} className={`focus-ring border p-3 text-left transition-colors ${active ? 'border-[#142d3b] bg-[#142d3b] text-[#f6f0df]' : 'border-[#b5ccc6] bg-[#f2f0e8] text-[#142d3b] hover:border-[#1b7778]'}`} data-testid={`button-recovery-phase-${phase.id}`}><span className="block font-mono-cnj text-[10px]" style={{ color: active ? '#f2a65a' : toneColor }}>{phase.number}</span><span className="mt-2 block font-display text-sm font-semibold leading-tight">{phase.label}</span></button>; })}</div>
+            <div className="mt-7 grid gap-7 border-t border-[#b5ccc6] pt-6 md:grid-cols-[1fr_.72fr]"><div><p className="eyebrow text-[#1b7778]">Selected phase</p><h4 className="mt-3 font-display text-2xl leading-[.98] tracking-[-.05em] text-[#142d3b]">{selectedPhase.title}</h4><p className="mt-4 text-sm leading-7 text-[#50676b]">{selectedPhase.copy}</p></div><div><p className="eyebrow text-[#61777a]">Evidence to leave behind</p><div className="mt-3 space-y-2">{selectedPhase.evidence.map((item) => <div key={item} className="flex items-center gap-2 border-b border-[#c5d6d1] pb-2 text-sm text-[#142d3b]"><Check className="h-4 w-4 text-[#1b7778]" />{item}</div>)}</div></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function SystemModel() {
   const [selected, setSelected] = useState('controller');
   const [lens, setLens] = useState('consequence');
@@ -792,7 +883,7 @@ function Home() {
   };
 
   const closeMenu = () => setMenuOpen(false);
-  const navItems = [['Sectors', '#sectors'], ['Capabilities', '#capabilities'], ['System models', '#models'], ['Learning', '#learning'], ['Our team', '#team']];
+  const navItems = [['Sectors', '#sectors'], ['Capabilities', '#capabilities'], ['System models', '#models'], ['Recovery', '#recovery'], ['Learning', '#learning'], ['Our team', '#team']];
 
   return (
     <div className="cnj-page grain" id="top">
@@ -846,6 +937,8 @@ function Home() {
         <section className="bg-[#f2f0e8] px-6 py-24 lg:px-10 lg:py-32"><div className="mx-auto max-w-[1400px]"><div className="mb-12 flex items-end justify-between gap-5"><div><SectionLabel>03 / Engagement packets</SectionLabel><h2 className="mt-5 font-display text-[clamp(2.7rem,5vw,4.8rem)] leading-[.95] tracking-[-.07em] text-[#142d3b]">A bounded start<br /><span className="text-[#1b7778]">with a clear finish.</span></h2></div><Boxes className="hidden h-12 w-12 text-[#f2a65a] sm:block" /></div><div className="grid gap-4 lg:grid-cols-3">{bundles.map((bundle) => <article key={bundle.code} className={`border p-7 ${bundle.accent === 'orange' ? 'border-[#f2a65a] bg-[#f2a65a]' : 'border-[#cedbd9] bg-[#f8f7f1]'}`} data-testid={`card-bundle-${bundle.code.toLowerCase().replaceAll(' ', '-')}`}><div className="flex items-center justify-between"><span className={`font-mono-cnj text-[10px] uppercase tracking-[.15em] ${bundle.accent === 'orange' ? 'text-[#5f4640]' : 'text-[#1b7778]'}`}>{bundle.code}</span><ArrowUpRight className={bundle.accent === 'orange' ? 'h-5 w-5 text-[#142d3b]' : 'h-5 w-5 text-[#f2a65a]'} /></div><h3 className="mt-16 font-display text-3xl leading-[.95] tracking-[-.06em] text-[#142d3b]">{bundle.title}</h3><p className="mt-5 text-sm leading-7 text-[#50676b]">{bundle.copy}</p><p className="mt-6 font-mono-cnj text-[10px] uppercase tracking-[.1em] text-[#1b7778]">{bundle.use}</p><ul className="mt-6 border-t border-current/15 pt-5">{bundle.includes.map((include) => <li key={include} className="mb-2 flex items-center gap-2 text-sm text-[#50676b]"><Check className="h-4 w-4 text-[#1b7778]" />{include}</li>)}</ul></article>)}</div></div></section>
 
         <section id="models" className="bg-[#173744] px-6 py-24 lg:px-10 lg:py-32"><div className="mx-auto max-w-[1400px]"><div className="mb-12 grid gap-7 md:grid-cols-[.7fr_1fr] md:items-end"><div><SectionLabel dark>04 / Assessment instruments</SectionLabel><h2 className="mt-5 font-display text-[clamp(2.8rem,5vw,5rem)] leading-[.92] tracking-[-.07em] text-[#f6f0df]">Make the path<br /><span className="text-[#61d3c8]">visible.</span></h2></div><p className="max-w-xl text-sm leading-7 text-[#9eb6ba]">Interactive models are not theatre. They are compact ways to ask better questions: which asset matters, which path is plausible, and which defensive move changes the outcome?</p></div><LayeredArchitecture /><div className="mt-7"><AttackGraph /></div><div className="mt-7"><SystemModel /></div></div></section>
+
+        <RecoveryRunbook />
 
         <section id="learning" className="bg-[#dfece8] px-6 py-24 lg:px-10 lg:py-32"><div className="mx-auto grid max-w-[1400px] gap-14 lg:grid-cols-[.42fr_1fr]"><div><SectionLabel>05 / Learning pathways</SectionLabel><h2 className="mt-5 font-display text-[clamp(2.8rem,5vw,5rem)] leading-[.92] tracking-[-.07em] text-[#142d3b]">Build the<br /><span className="text-[#1b7778]">competence.</span></h2><p className="mt-7 max-w-sm text-sm leading-7 text-[#50676b]">Short, applied learning for teams that need to understand the system behind the control. Preparation and evidence, not a promise of external certification.</p><div className="mt-9 flex items-center gap-3 font-mono-cnj text-[10px] uppercase tracking-[.15em] text-[#1b7778]"><GraduationCap className="h-4 w-4" /> learn / apply / evidence</div></div><div className="space-y-3"><article className="border border-[#a8c8c2] bg-[#f2f0e8] p-6 md:p-8"><div className="flex flex-col justify-between gap-5 sm:flex-row"><div><p className="eyebrow text-[#f08b3d]">Pathway / foundational</p><h3 className="mt-3 font-display text-2xl tracking-[-.05em] text-[#142d3b]">System thinking for IT / OT teams</h3></div><BookOpen className="h-7 w-7 text-[#1b7778]" /></div><p className="mt-5 max-w-2xl text-sm leading-7 text-[#50676b]">A practical sequence covering zones, trust boundaries, consequence, vulnerability triage, and how to explain technical risk to the people who own the process.</p><div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 border-t border-[#c5d6d1] pt-5 font-mono-cnj text-[10px] uppercase tracking-[.08em] text-[#1b7778]"><span>4 modules</span><span>Workshop format</span><span>Team evidence notes</span></div></article><article className="border border-[#a8c8c2] bg-[#173744] p-6 text-[#f6f0df] md:p-8"><div className="flex flex-col justify-between gap-5 sm:flex-row"><div><p className="eyebrow text-[#61d3c8]">Pathway / certification readiness</p><h3 className="mt-3 font-display text-2xl tracking-[-.05em]">Evidence packs for the exam room</h3></div><FileCheck2 className="h-7 w-7 text-[#f2a65a]" /></div><p className="mt-5 max-w-2xl text-sm leading-7 text-[#c8d7d8]">Preparation support for selected security and industrial-security certification pathways: map the syllabus to your experience, close evidence gaps, and rehearse the competency language.</p><div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 border-t border-[#47717b] pt-5 font-mono-cnj text-[10px] uppercase tracking-[.08em] text-[#61d3c8]"><span>Competency map</span><span>Evidence pack</span><span>No certification issued</span></div></article><article className="border border-[#a8c8c2] bg-[#f2f0e8] p-6 md:p-8"><div className="flex flex-col justify-between gap-5 sm:flex-row"><div><p className="eyebrow text-[#f08b3d]">Pathway / practitioner</p><h3 className="mt-3 font-display text-2xl tracking-[-.05em] text-[#142d3b]">Vulnerability intelligence in practice</h3></div><TerminalSquare className="h-7 w-7 text-[#1b7778]" /></div><p className="mt-5 max-w-2xl text-sm leading-7 text-[#50676b]">Build a repeatable route from NVD, CISA KEV, MITRE ATT&CK, and vendor advisories to asset owners, maintenance windows, compensating controls, and closure evidence.</p></article></div></div></section>
 

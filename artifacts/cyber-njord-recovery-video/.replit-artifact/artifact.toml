@@ -1,0 +1,29 @@
+kind = "video"
+previewPath = "/cyber-njord-recovery-video/"
+title = "Cyber Njord Recovery Explainer"
+description = "A short animated explainer showing how financial, industrial, and education organisations move from cyber disruption through containment, verified restore, and safe return to operation."
+version = "1.0.0"
+id = "artifacts/cyber-njord-recovery-video"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/cyber-njord-recovery-video/" ]
+localPort = 18369
+
+[services.development]
+run = "pnpm --filter @workspace/cyber-njord-recovery-video run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/cyber-njord-recovery-video", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/cyber-njord-recovery-video/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18369"
+BASE_PATH = "/cyber-njord-recovery-video/"
+videoAspectRatio = "16:9"
