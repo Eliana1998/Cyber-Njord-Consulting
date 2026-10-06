@@ -197,6 +197,45 @@ const bundles = [
   },
 ];
 
+const exampleProducts = [
+  {
+    id: 'resilience-map',
+    name: 'Critical-Service Resilience Map',
+    label: 'Finance / essential services',
+    copy: 'A working model of critical services, identity, payment or operational dependencies, supplier touchpoints, and disruption tolerances.',
+    includes: ['Service dependency map', 'Impact and recovery priorities', 'Board-ready decision brief'],
+    icon: BriefcaseBusiness,
+    accent: 'teal',
+  },
+  {
+    id: 'recovery-rehearsal',
+    name: 'Recovery Rehearsal Kit',
+    label: 'OT / IT / ICS',
+    copy: 'A facilitated scenario and evidence pack to rehearse containment, safe-state decisions, restore order, and controlled return to production.',
+    includes: ['Scenario injects', 'Role and decision cards', 'Restore validation checklist'],
+    icon: RefreshCw,
+    accent: 'orange',
+  },
+  {
+    id: 'campus-model',
+    name: 'Campus Cyber Resilience Model',
+    label: 'Universities / schools / academies',
+    copy: 'A practical view of identity, learning services, research, student data, safeguarding dependencies, and continuity priorities.',
+    includes: ['Campus trust map', 'Priority service tiers', 'Incident coordination prompts'],
+    icon: GraduationCap,
+    accent: 'teal',
+  },
+  {
+    id: 'system-risk-explorer',
+    name: 'System Risk Explorer',
+    label: 'Interactive modelling',
+    copy: 'A tailored model linking architecture components to attack scenarios, consequence, reachability, recovery confidence, and defensive actions.',
+    includes: ['Layered architecture view', 'Scenario-specific attack paths', 'Component and system risk lenses'],
+    icon: Boxes,
+    accent: 'orange',
+  },
+];
+
 const topologyNodes = [
   { id: 'enterprise', label: 'Enterprise IT', sub: 'Identity · ERP · users', x: 10, y: 20, tone: 'teal' },
   { id: 'dmz', label: 'DMZ / boundary', sub: 'Jump hosts · broker', x: 39, y: 44, tone: 'orange' },
@@ -753,6 +792,37 @@ function RecoveryRunbook() {
             <div className="mt-7 grid gap-7 border-t border-[#b5ccc6] pt-6 md:grid-cols-[1fr_.72fr]"><div><p className="eyebrow text-[#1b7778]">Selected phase</p><h4 className="mt-3 font-display text-2xl leading-[.98] tracking-[-.05em] text-[#142d3b]">{selectedPhase.title}</h4><p className="mt-4 text-sm leading-7 text-[#50676b]">{selectedPhase.copy}</p></div><div><p className="eyebrow text-[#61777a]">Evidence to leave behind</p><div className="mt-3 space-y-2">{selectedPhase.evidence.map((item) => <div key={item} className="flex items-center gap-2 border-b border-[#c5d6d1] pb-2 text-sm text-[#142d3b]"><Check className="h-4 w-4 text-[#1b7778]" />{item}</div>)}</div></div></div>
           </div>
         </div>
+        <div className="mt-12 grid gap-7 lg:grid-cols-[.45fr_1fr] lg:items-center">
+          <div><SectionLabel>Recovery explainer / 16:9</SectionLabel><h3 className="mt-4 font-display text-3xl leading-[.98] tracking-[-.06em] text-[#142d3b]">See the recovery sequence in motion.</h3><p className="mt-4 text-sm leading-7 text-[#61777a]">Disruption, containment, verified restore, validation, and a controlled return to operation.</p></div>
+          <div className="overflow-hidden border border-[#47717b] bg-[#142d3b] shadow-md"><iframe title="Cyber Njord disaster recovery explainer" src={`${import.meta.env.BASE_URL}cyber-njord-recovery-video/`} className="aspect-video w-full" allow="autoplay" loading="lazy" data-testid="iframe-recovery-explainer" /></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProductsShelf({ onSelectProduct }: { onSelectProduct: (productName: string) => void }) {
+  return (
+    <section id="products" className="bg-[#142d3b] px-6 py-24 text-[#f6f0df] lg:px-10 lg:py-32" data-testid="section-example-products">
+      <div className="mx-auto max-w-[1400px]">
+        <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div><SectionLabel dark>Client-ready products / examples</SectionLabel><h2 className="mt-5 max-w-3xl font-display text-[clamp(2.8rem,5vw,5rem)] font-medium leading-[.92] tracking-[-.07em]">Useful tools your<br /><span className="text-[#61d3c8]">team can put to work.</span></h2></div>
+          <p className="max-w-sm text-sm leading-7 text-[#9eb6ba]">Configured with your people and evidence, these are practical models, kits, and decision aids—not claims of off-the-shelf software.</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {exampleProducts.map((product) => {
+            const Icon = product.icon;
+            const orange = product.accent === 'orange';
+            return (
+              <article key={product.id} className={`border p-6 md:p-8 ${orange ? 'border-[#f2a65a] bg-[#f2a65a] text-[#142d3b]' : 'border-[#47717b] bg-[#173744]'}`} data-testid={`card-product-${product.id}`}>
+                <div className="flex items-start justify-between gap-4"><div><p className={`eyebrow ${orange ? 'text-[#5f4640]' : 'text-[#61d3c8]'}`}>{product.label}</p><h3 className="mt-4 font-display text-2xl font-semibold tracking-[-.04em]">{product.name}</h3></div><Icon className={`h-7 w-7 shrink-0 stroke-[1.25] ${orange ? 'text-[#142d3b]' : 'text-[#f2a65a]'}`} /></div>
+                <p className={`mt-4 text-sm leading-7 ${orange ? 'text-[#5f4640]' : 'text-[#c8d7d8]'}`}>{product.copy}</p>
+                <div className={`mt-6 border-t pt-5 ${orange ? 'border-[#142d3b]/20' : 'border-[#47717b]'}`}>{product.includes.map((item) => <div key={item} className={`mb-2 flex items-center gap-2 text-sm ${orange ? 'text-[#142d3b]' : 'text-[#c8d7d8]'}`}><Check className={`h-4 w-4 ${orange ? 'text-[#1b7778]' : 'text-[#61d3c8]'}`} />{item}</div>)}</div>
+                <button type="button" onClick={() => onSelectProduct(product.name)} className={`focus-ring mt-5 inline-flex items-center gap-2 border-b pb-1 font-mono-cnj text-[10px] uppercase tracking-[.1em] ${orange ? 'border-[#142d3b] text-[#142d3b]' : 'border-[#61d3c8] text-[#61d3c8]'}`} data-testid={`button-product-interest-${product.id}`}>Discuss this product <ArrowUpRight className="h-3.5 w-3.5" /></button>
+              </article>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
@@ -863,6 +933,7 @@ function MappingConsole() {
 function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sent, setSent] = useState(false);
+  const [productInterest, setProductInterest] = useState('');
   const [serviceFilter, setServiceFilter] = useState<'All' | ServiceCategory>('All');
   const [vulnerabilitySeverity, setVulnerabilitySeverity] = useState('All');
   const [vulnerabilityStatus, setVulnerabilityStatus] = useState('All');
@@ -877,13 +948,20 @@ function Home() {
     const name = String(data.get('name') || '');
     const email = String(data.get('email') || '');
     const brief = String(data.get('brief') || '');
-    window.location.href = `mailto:hello@cybernjord.eu?subject=${encodeURIComponent(`Conversation request from ${name}`)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${brief}`)}`;
+    const selectedProduct = String(data.get('productInterest') || '');
+    window.location.href = `mailto:hello@cybernjord.eu?subject=${encodeURIComponent(`Conversation request from ${name}`)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}${selectedProduct ? `\nProduct interest: ${selectedProduct}` : ''}\n\n${brief}`)}`;
     setSent(true);
     form.reset();
+    setProductInterest('');
+  };
+
+  const handleProductSelect = (productName: string) => {
+    setProductInterest(productName);
+    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const closeMenu = () => setMenuOpen(false);
-  const navItems = [['Sectors', '#sectors'], ['Capabilities', '#capabilities'], ['System models', '#models'], ['Recovery', '#recovery'], ['Learning', '#learning'], ['Our team', '#team']];
+  const navItems = [['Sectors', '#sectors'], ['Capabilities', '#capabilities'], ['Products', '#products'], ['System models', '#models'], ['Recovery', '#recovery'], ['Learning', '#learning'], ['Our team', '#team']];
 
   return (
     <div className="cnj-page grain" id="top">
@@ -936,6 +1014,8 @@ function Home() {
 
         <section className="bg-[#f2f0e8] px-6 py-24 lg:px-10 lg:py-32"><div className="mx-auto max-w-[1400px]"><div className="mb-12 flex items-end justify-between gap-5"><div><SectionLabel>03 / Engagement packets</SectionLabel><h2 className="mt-5 font-display text-[clamp(2.7rem,5vw,4.8rem)] leading-[.95] tracking-[-.07em] text-[#142d3b]">A bounded start<br /><span className="text-[#1b7778]">with a clear finish.</span></h2></div><Boxes className="hidden h-12 w-12 text-[#f2a65a] sm:block" /></div><div className="grid gap-4 lg:grid-cols-3">{bundles.map((bundle) => <article key={bundle.code} className={`border p-7 ${bundle.accent === 'orange' ? 'border-[#f2a65a] bg-[#f2a65a]' : 'border-[#cedbd9] bg-[#f8f7f1]'}`} data-testid={`card-bundle-${bundle.code.toLowerCase().replaceAll(' ', '-')}`}><div className="flex items-center justify-between"><span className={`font-mono-cnj text-[10px] uppercase tracking-[.15em] ${bundle.accent === 'orange' ? 'text-[#5f4640]' : 'text-[#1b7778]'}`}>{bundle.code}</span><ArrowUpRight className={bundle.accent === 'orange' ? 'h-5 w-5 text-[#142d3b]' : 'h-5 w-5 text-[#f2a65a]'} /></div><h3 className="mt-16 font-display text-3xl leading-[.95] tracking-[-.06em] text-[#142d3b]">{bundle.title}</h3><p className="mt-5 text-sm leading-7 text-[#50676b]">{bundle.copy}</p><p className="mt-6 font-mono-cnj text-[10px] uppercase tracking-[.1em] text-[#1b7778]">{bundle.use}</p><ul className="mt-6 border-t border-current/15 pt-5">{bundle.includes.map((include) => <li key={include} className="mb-2 flex items-center gap-2 text-sm text-[#50676b]"><Check className="h-4 w-4 text-[#1b7778]" />{include}</li>)}</ul></article>)}</div></div></section>
 
+        <ProductsShelf onSelectProduct={handleProductSelect} />
+
         <section id="models" className="bg-[#173744] px-6 py-24 lg:px-10 lg:py-32"><div className="mx-auto max-w-[1400px]"><div className="mb-12 grid gap-7 md:grid-cols-[.7fr_1fr] md:items-end"><div><SectionLabel dark>04 / Assessment instruments</SectionLabel><h2 className="mt-5 font-display text-[clamp(2.8rem,5vw,5rem)] leading-[.92] tracking-[-.07em] text-[#f6f0df]">Make the path<br /><span className="text-[#61d3c8]">visible.</span></h2></div><p className="max-w-xl text-sm leading-7 text-[#9eb6ba]">Interactive models are not theatre. They are compact ways to ask better questions: which asset matters, which path is plausible, and which defensive move changes the outcome?</p></div><LayeredArchitecture /><div className="mt-7"><AttackGraph /></div><div className="mt-7"><SystemModel /></div></div></section>
 
         <RecoveryRunbook />
@@ -948,7 +1028,7 @@ function Home() {
 
         <section id="team" className="bg-[#142d3b] px-6 py-24 text-[#f6f0df] lg:px-10 lg:py-32"><div className="mx-auto grid max-w-[1400px] gap-14 lg:grid-cols-[.62fr_1fr] lg:items-end"><div className="relative min-h-[355px] overflow-hidden border border-[#47717b] bg-[#173744] p-7"><div className="absolute right-8 top-8 h-36 w-36 rounded-full border border-[#61d3c8]/30" /><div className="absolute right-16 top-16 h-20 w-20 rounded-full border border-[#61d3c8]/30" /><div className="absolute bottom-8 left-8 h-px w-3/4 bg-[#47717b]" /><div className="absolute bottom-12 left-8 h-24 w-px bg-[#47717b]" /><div className="relative flex min-h-[300px] flex-col justify-between"><div className="flex items-start justify-between"><span className="eyebrow text-[#61d3c8]">The collective / advisory network</span><ShieldAlert className="h-7 w-7 stroke-[1] text-[#f2a65a]" /></div><div><p className="font-display text-5xl font-medium tracking-[-.08em] text-[#f2a65a]">CN</p><p className="mt-2 font-mono-cnj text-[10px] uppercase tracking-[.16em] text-[#b9cbd0]">Our team / systems, risk, learning</p></div></div></div><div><SectionLabel dark>08 / Our team</SectionLabel><h2 className="mt-5 font-display text-[clamp(2.8rem,5vw,5.1rem)] font-medium leading-[.94] tracking-[-.07em]">Experience that<br /><span className="text-[#f2a65a]">crosses boundaries.</span></h2><p className="mt-8 max-w-2xl text-base leading-8 text-[#c8d7d8]">Cyber Njord brings together practitioners who understand security from more than one angle: enterprise architecture, industrial operations, governance, vulnerability intelligence, and the human work of making a decision stick.</p><p className="mt-5 max-w-2xl text-base leading-8 text-[#c8d7d8]">The model is deliberately small and senior. The right specialist joins the problem, the team learns the reasoning, and the evidence stays with the organisation.</p><a href="#contact" className="focus-ring group mt-9 inline-flex items-center gap-3 border-b border-[#f2a65a] pb-2 text-xs font-bold uppercase tracking-[.15em] text-[#f2a65a]" data-testid="link-team-contact">Meet the team in context <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" /></a></div></div></section>
 
-        <section id="contact" className="bg-[#f2f0e8] px-6 py-24 lg:px-10 lg:py-36"><div className="mx-auto grid max-w-[1400px] gap-16 lg:grid-cols-[.75fr_1fr]"><div><div className="line-accent mb-7" /><SectionLabel>09 / Make contact</SectionLabel><h2 className="mt-6 font-display text-[clamp(3rem,6vw,6.4rem)] font-medium leading-[.86] tracking-[-.08em] text-[#142d3b]">Start with<br /><span className="text-[#1b7778]">the situation.</span></h2><p className="mt-8 max-w-md text-base leading-8 text-[#61777a]">You do not need a polished brief. Share what is changing, what feels unclear, or what decision is coming up. Our team will take it from there.</p><div className="mt-10 flex items-center gap-3 font-mono-cnj text-xs text-[#142d3b]"><span className="h-2 w-2 rounded-full bg-[#1b7778]" /> hello@cybernjord.eu</div></div><form onSubmit={handleSubmit} className="border-t-2 border-[#142d3b] pt-7" data-testid="form-contact"><div className="grid gap-7 sm:grid-cols-2"><label className="block"><span className="eyebrow text-[#61777a]">Your name</span><input required name="name" type="text" className="focus-ring mt-3 w-full border-b border-[#9fb5b3] bg-transparent px-0 py-3 text-base text-[#142d3b] outline-none transition-colors placeholder:text-[#9fb5b3] focus:border-[#1b7778]" placeholder="Name" data-testid="input-contact-name" /></label><label className="block"><span className="eyebrow text-[#61777a]">Work email</span><input required name="email" type="email" className="focus-ring mt-3 w-full border-b border-[#9fb5b3] bg-transparent px-0 py-3 text-base text-[#142d3b] outline-none transition-colors placeholder:text-[#9fb5b3] focus:border-[#1b7778]" placeholder="you@organisation.eu" data-testid="input-contact-email" /></label></div><label className="mt-8 block"><span className="eyebrow text-[#61777a]">What is on your mind?</span><textarea required name="brief" rows={4} className="focus-ring mt-3 w-full resize-none border-b border-[#9fb5b3] bg-transparent px-0 py-3 text-base text-[#142d3b] outline-none transition-colors placeholder:text-[#9fb5b3] focus:border-[#1b7778]" placeholder="A few lines about the environment, the question, or the decision ahead." data-testid="input-contact-brief" /></label><div className="mt-8 flex flex-wrap items-center gap-5"><button type="submit" className="focus-ring group inline-flex items-center gap-3 bg-[#142d3b] px-6 py-3.5 text-xs font-bold uppercase tracking-[.14em] text-[#f6f0df] transition-transform hover:-translate-y-0.5 hover:bg-[#1b7778]" data-testid="button-submit-contact">Send via email <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></button>{sent && <span className="flex items-center gap-2 text-xs text-[#1b7778]" data-testid="status-contact-sent"><Check className="h-4 w-4" /> Your email draft is ready.</span>}</div><p className="mt-5 text-xs leading-5 text-[#7a8d8d]">This opens your email client with the details you provide. No information is stored on this site.</p></form></div></section>
+        <section id="contact" className="bg-[#f2f0e8] px-6 py-24 lg:px-10 lg:py-36"><div className="mx-auto grid max-w-[1400px] gap-16 lg:grid-cols-[.75fr_1fr]"><div><div className="line-accent mb-7" /><SectionLabel>09 / Make contact</SectionLabel><h2 className="mt-6 font-display text-[clamp(3rem,6vw,6.4rem)] font-medium leading-[.86] tracking-[-.08em] text-[#142d3b]">Start with<br /><span className="text-[#1b7778]">the situation.</span></h2><p className="mt-8 max-w-md text-base leading-8 text-[#61777a]">You do not need a polished brief. Share what is changing, what feels unclear, or what decision is coming up. Our team will take it from there.</p><div className="mt-10 flex items-center gap-3 font-mono-cnj text-xs text-[#142d3b]"><span className="h-2 w-2 rounded-full bg-[#1b7778]" /> hello@cybernjord.eu</div></div><form onSubmit={handleSubmit} className="border-t-2 border-[#142d3b] pt-7" data-testid="form-contact"><input type="hidden" name="productInterest" value={productInterest} /><div className="grid gap-7 sm:grid-cols-2"><label className="block"><span className="eyebrow text-[#61777a]">Your name</span><input required name="name" type="text" className="focus-ring mt-3 w-full border-b border-[#9fb5b3] bg-transparent px-0 py-3 text-base text-[#142d3b] outline-none transition-colors placeholder:text-[#9fb5b3] focus:border-[#1b7778]" placeholder="Name" data-testid="input-contact-name" /></label><label className="block"><span className="eyebrow text-[#61777a]">Work email</span><input required name="email" type="email" className="focus-ring mt-3 w-full border-b border-[#9fb5b3] bg-transparent px-0 py-3 text-base text-[#142d3b] outline-none transition-colors placeholder:text-[#9fb5b3] focus:border-[#1b7778]" placeholder="you@organisation.eu" data-testid="input-contact-email" /></label></div>{productInterest && <p className="mt-8 border-l-2 border-[#1b7778] pl-4 text-sm text-[#142d3b]" data-testid="text-selected-product">Product to discuss: <strong>{productInterest}</strong></p>}<label className="mt-8 block"><span className="eyebrow text-[#61777a]">What is on your mind?</span><textarea required name="brief" rows={4} className="focus-ring mt-3 w-full resize-none border-b border-[#9fb5b3] bg-transparent px-0 py-3 text-base text-[#142d3b] outline-none transition-colors placeholder:text-[#9fb5b3] focus:border-[#1b7778]" placeholder="A few lines about the environment, the question, or the decision ahead." data-testid="input-contact-brief" /></label><div className="mt-8 flex flex-wrap items-center gap-5"><button type="submit" className="focus-ring group inline-flex items-center gap-3 bg-[#142d3b] px-6 py-3.5 text-xs font-bold uppercase tracking-[.14em] text-[#f6f0df] transition-transform hover:-translate-y-0.5 hover:bg-[#1b7778]" data-testid="button-submit-contact">Send via email <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></button>{sent && <span className="flex items-center gap-2 text-xs text-[#1b7778]" data-testid="status-contact-sent"><Check className="h-4 w-4" /> Your email draft is ready.</span>}</div><p className="mt-5 text-xs leading-5 text-[#7a8d8d]">This opens your email client with the details you provide. No information is stored on this site.</p></form></div></section>
       </main>
 
       <footer className="bg-[#142d3b] px-6 py-10 text-[#b9cbd0] lg:px-10"><div className="mx-auto flex max-w-[1400px] flex-col justify-between gap-8 sm:flex-row sm:items-end"><div><Wordmark /><p className="mt-5 max-w-xs text-xs leading-6 text-[#72979e]">Cybersecurity for IT, OT, ICS, cloud access, and the infrastructure that keeps the world moving.</p></div><div className="text-left sm:text-right"><div className="mb-4 flex flex-wrap gap-4 font-mono-cnj text-[10px] uppercase tracking-[.1em] text-[#72979e]"><a href="#compliance" className="focus-ring hover:text-[#f2a65a]" data-testid="link-footer-compliance">Compliance</a><a href="#intelligence" className="focus-ring hover:text-[#f2a65a]" data-testid="link-footer-intelligence">Reference intelligence</a></div><a href="mailto:hello@cybernjord.eu" className="font-mono-cnj text-xs text-[#f2a65a] hover:text-[#ffc47d]" data-testid="link-footer-email">hello@cybernjord.eu</a><p className="mt-3 text-[10px] uppercase tracking-[.14em] text-[#72979e]">© {new Date().getFullYear()} Cyber Njord</p></div></div></footer>
